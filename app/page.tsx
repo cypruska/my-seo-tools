@@ -2,6 +2,7 @@ import Link from "next/link";
 
 const tools = [
   { href: "/robots-txt", icon: "🤖", title: "robots.txt Validator & Builder", desc: "Validate, test, and generate robots.txt files following Google's RFC 9309 specification." },
+  { href: "/llms-txt", icon: "🧠", title: "LLMs.txt Builder & Validator", desc: "Generate and validate llms.txt files — the emerging standard for making your site AI-readable." },
   { href: "/utm-builder", icon: "🔗", title: "UTM Campaign URL Builder", desc: "Build UTM-tagged campaign URLs with smart presets for Google Ads, Meta, and more." },
   { href: "/meta-tags", icon: "🏷️", title: "AI Meta Title & Description Creator", desc: "AI reads your page and generates SEO-optimized titles and descriptions with SERP preview." },
   { href: "/pagespeed", icon: "⚡", title: "PageSpeed Insights & Core Web Vitals", desc: "Analyze performance, accessibility, SEO scores, and Core Web Vitals using Google Lighthouse." },
