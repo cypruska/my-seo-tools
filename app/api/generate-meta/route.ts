@@ -20,11 +20,11 @@ export async function POST(req: NextRequest) {
     });
     const html = await res.text();
     // Extract useful text: title, meta description, h1s, h2s, first paragraphs
-    const titleMatch = html.match(/<title[^>]*>(.*?)<\/title>/is);
-    const descMatch = html.match(/<meta[^>]*name=["']description["'][^>]*content=["'](.*?)["']/is);
-    const h1s = [...html.matchAll(/<h1[^>]*>(.*?)<\/h1>/gis)].map(m => m[1].replace(/<[^>]+>/g, "").trim()).filter(Boolean);
-    const h2s = [...html.matchAll(/<h2[^>]*>(.*?)<\/h2>/gis)].map(m => m[1].replace(/<[^>]+>/g, "").trim()).filter(Boolean).slice(0, 5);
-    const paragraphs = [...html.matchAll(/<p[^>]*>(.*?)<\/p>/gis)].map(m => m[1].replace(/<[^>]+>/g, "").trim()).filter(s => s.length > 30).slice(0, 5);
+    const titleMatch = html.match(/<title[^>]*>(.*?)<\/title>/i);
+    const descMatch = html.match(/<meta[^>]*name=["']description["'][^>]*content=["'](.*?)["']/i);
+    const h1s = [...html.matchAll(/<h1[^>]*>(.*?)<\/h1>/gi)].map(m => m[1].replace(/<[^>]+>/g, "").trim()).filter(Boolean);
+    const h2s = [...html.matchAll(/<h2[^>]*>(.*?)<\/h2>/gi)].map(m => m[1].replace(/<[^>]+>/g, "").trim()).filter(Boolean).slice(0, 5);
+    const paragraphs = [...html.matchAll(/<p[^>]*>(.*?)<\/p>/gi)].map(m => m[1].replace(/<[^>]+>/g, "").trim()).filter(s => s.length > 30).slice(0, 5);
 
     pageContent = [
       titleMatch ? `Current title: ${titleMatch[1].trim()}` : "",
