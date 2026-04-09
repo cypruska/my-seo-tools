@@ -8,7 +8,7 @@ export async function GET(req: NextRequest) {
   let target = url.trim();
   if (!target.startsWith("http")) target = "https://" + target;
 
-  const apiUrl = `https://www.googleapis.com/pagespeedonline/v5/runPagespeed?url=${encodeURIComponent(target)}&strategy=${strategy}&category=PERFORMANCE&category=ACCESSIBILITY&category=BEST_PRACTICES&category=SEO`;
+  const key = process.env.GOOGLE_API_KEY || ""; const apiUrl = `https://www.googleapis.com/pagespeedonline/v5/runPagespeed?key=${key}&url=${encodeURIComponent(target)}&strategy=${strategy}&category=PERFORMANCE&category=ACCESSIBILITY&category=BEST_PRACTICES&category=SEO`;
 
   try {
     const res = await fetch(apiUrl, { signal: AbortSignal.timeout(60000) });
