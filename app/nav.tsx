@@ -5,8 +5,9 @@ import { usePathname } from "next/navigation";
 const tools = [
   { href: "/robots-txt", label: "🤖 robots.txt" },
   { href: "/utm-builder", label: "🔗 UTM Builder" },
-  { href: "/meta-tags", label: "🏷️ Meta Tags AI" },
+  { href: "/meta-tags", label: "📝 Meta Tags AI" },
   { href: "/pagespeed", label: "⚡ PageSpeed" },
+  { href: "/llms-txt", label: "🧠 LLMs.txt" },
 ];
 
 export function Nav() {
