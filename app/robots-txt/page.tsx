@@ -119,7 +119,7 @@ function test(parsed: ParseResult, ua: string, path: string): TestResult {
     }
   });
   if (!bestR) return { allowed: true, reason: "No rules match this path — allowed by default.", matchedRule: null, group: bestG };
-  return { allowed: bestR.type === "allow", reason: `Matched "${bestR.type}: ${(bestR as Rule).path}" on line ${(bestR as Rule).line}`, matchedRule: bestR, group: bestG };
+  const br = bestR as Rule; return { allowed: br.type === "allow", reason: `Matched "${br.type}: ${br.path}" on line ${br.line}`, matchedRule: bestR, group: bestG };
 }
 
 function generate(groups: BuilderGroup[], sitemaps: string[]) {
