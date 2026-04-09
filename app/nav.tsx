@@ -1,6 +1,7 @@
 "use client";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useSession, signOut } from "next-auth/react";
 
 const tools = [
   { href: "/robots-txt", label: "🤖 robots.txt" },
@@ -12,11 +13,13 @@ const tools = [
 
 export function Nav() {
   const path = usePathname();
+  const { data: session } = useSession();
+
   return (
     <nav style={{
       borderBottom: "1px solid #1e2a42", padding: "0 24px",
       display: "flex", alignItems: "center", gap: 0,
-      maxWidth: 900, margin: "0 auto", overflowX: "auto",
+      maxWidth: 960, margin: "0 auto", overflowX: "auto",
     }}>
       <Link href="/" style={{
         fontWeight: 800, fontSize: 16, color: "#e2e8f0",
@@ -42,6 +45,28 @@ export function Nav() {
           {t.label}
         </Link>
       ))}
+      <div style={{ marginLeft: "auto", paddingLeft: 16 }}>
+        {session ? (
+          <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+            {session.user?.image && (
+              <img src={session.user.image} alt="" style={{ width: 26, height: 26, borderRadius: "50%" }} />
+            )}
+            <span style={{ fontSize: 12, color: "#64748b", whiteSpace: "nowrap" }}>{session.user?.name?.split(" ")[0]}</span>
+            <button onClick={() => signOut()} style={{
+              padding: "6px 12px", fontSize: 11, fontWeight: 600, fontFamily: "'DM Sans', system-ui, sans-serif",
+              borderRadius: 6, border: "1px solid #1e2a42", background: "transparent", color: "#64748b", cursor: "pointer",
+              whiteSpace: "nowrap",
+            }}>Sign Out</button>
+          </div>
+        ) : (
+          <Link href="/login" style={{
+            padding: "8px 16px", fontSize: 12, fontWeight: 700,
+            fontFamily: "'DM Sans', system-ui, sans-serif",
+            borderRadius: 6, background: "#3b82f6", color: "#fff",
+            textDecoration: "none", whiteSpace: "nowrap",
+          }}>Sign In</Link>
+        )}
+      </div>
     </nav>
   );
 }
