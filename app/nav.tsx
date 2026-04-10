@@ -2,6 +2,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useSession, signOut } from "next-auth/react";
+import { useEffect, useState } from "react";
 
 const tools = [
   { href: "/robots-txt", label: "🤖 robots.txt" },
@@ -14,6 +15,16 @@ const tools = [
 export function Nav() {
   const path = usePathname();
   const { data: session } = useSession();
+  const [credits, setCredits] = useState<number | null>(null);
+
+  useEffect(() => {
+    if (session?.user) {
+      fetch("/api/credits")
+        .then((r) => r.json())
+        .then((d) => setCredits(d.credits))
+        .catch(() => setCredits(0));
+    }
+  }, [session]);
 
   return (
     <nav style={{
@@ -48,6 +59,18 @@ export function Nav() {
       <div style={{ marginLeft: "auto", paddingLeft: 16 }}>
         {session ? (
           <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+            <Link href="/pricing" style={{
+              display: "inline-flex", alignItems: "center", gap: 5,
+              padding: "5px 10px", borderRadius: 6,
+              background: credits === 0 ? "rgba(239,68,68,0.15)" : "rgba(59,130,246,0.12)",
+              border: credits === 0 ? "1px solid rgba(239,68,68,0.3)" : "1px solid rgba(59,130,246,0.2)",
+              textDecoration: "none", fontSize: 12, fontWeight: 600,
+              color: credits === 0 ? "#f87171" : "#60a5fa",
+              whiteSpace: "nowrap",
+            }}>
+              <span style={{ fontSize: 11 }}>⚡</span>
+              {credits !== null ? credits : "–"} credits
+            </Link>
             {session.user?.image && (
               <img src={session.user.image} alt="" style={{ width: 26, height: 26, borderRadius: "50%" }} />
             )}

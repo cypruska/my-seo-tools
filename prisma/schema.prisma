@@ -44,7 +44,8 @@ model User {
   credits       Int       @default(0)
   accounts      Account[]
   sessions      Session[]
-  orders        Order[]
+  orders             Order[]
+  creditTransactions CreditTransaction[]
 }
 
 model VerificationToken {
@@ -65,4 +66,14 @@ model Order {
   status               String   @default("completed")
   createdAt            DateTime @default(now())
   user                 User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model CreditTransaction {
+  id           String   @id @default(cuid())
+  userId       String
+  amount       Int
+  reason       String
+  balanceAfter Int
+  createdAt    DateTime @default(now())
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }

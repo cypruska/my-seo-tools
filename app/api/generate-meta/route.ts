@@ -1,6 +1,19 @@
 import { NextRequest, NextResponse } from "next/server";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
+import { checkCredits, deductCredits } from "@/lib/credits";
 
 export async function POST(req: NextRequest) {
+  const session = await getServerSession(authOptions);
+  if (!session?.user?.id) {
+    return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
+  }
+
+  const { ok, balance } = await checkCredits(session.user.id, 1);
+  if (!ok) {
+    return NextResponse.json({ error: "No credits", balance }, { status: 402 });
+  }
+
   const apiKey = process.env.ANTHROPIC_API_KEY;
   if (!apiKey) {
     return NextResponse.json({ error: "ANTHROPIC_API_KEY not configured" }, { status: 500 });
@@ -64,8 +77,13 @@ export async function POST(req: NextRequest) {
     }
 
     const result = JSON.parse(jsonMatch[0]);
+
+    // Deduct credit AFTER successful generation
+    const newBalance = await deductCredits(session.user.id, 1, "use:meta-tags");
+
     return NextResponse.json({
       options: result.options,
+      balance: newBalance,
       pageInfo: {
         fetchedTitle: pageContent.match(/Current title: (.*)/)?.[1] || "",
         fetchedDescription: pageContent.match(/Current meta description: (.*)/)?.[1] || "",
