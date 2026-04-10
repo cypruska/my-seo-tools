@@ -1,6 +1,3 @@
-// Lemon Squeezy variant ID → credits mapping
-// Update these if you change products in Lemon Squeezy
-
 export const CREDIT_PACKS: Record<string, { credits: number; name: string; price: number }> = {
   "1510881": { credits: 5, name: "Starter SEO Plan", price: 9 },
   "1510887": { credits: 25, name: "Pro SEO Plan", price: 35 },
