@@ -2,16 +2,35 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { checkCredits, deductCredits } from "@/lib/credits";
+import { prisma } from "@/lib/prisma";
 
 export async function POST(req: NextRequest) {
-  const session = await getServerSession(authOptions);
-  if (!session?.user?.id) {
-    return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
-  }
+  const body = await req.json();
+  const { url, keywords, currentTitle, currentDescription, visitorId } = body;
 
-  const { ok, balance } = await checkCredits(session.user.id, 1);
-  if (!ok) {
-    return NextResponse.json({ error: "No credits", balance }, { status: 402 });
+  if (!url) return NextResponse.json({ error: "URL is required" }, { status: 400 });
+
+  const session = await getServerSession(authOptions);
+  let isFreeUse = false;
+
+  if (!session?.user?.id) {
+    // Anonymous user — check if they have a free use available
+    if (!visitorId) {
+      return NextResponse.json({ error: "Sign in to use this tool", requiresAuth: true }, { status: 401 });
+    }
+    const existing = await prisma.freeTrialUse.findUnique({
+      where: { visitorId },
+    });
+    if (existing) {
+      return NextResponse.json({ error: "Free trial used. Sign in and buy credits to continue.", requiresAuth: true }, { status: 401 });
+    }
+    isFreeUse = true;
+  } else {
+    // Authenticated user — check credits
+    const { ok, balance } = await checkCredits(session.user.id, 1);
+    if (!ok) {
+      return NextResponse.json({ error: "No credits", balance, requiresCredits: true }, { status: 402 });
+    }
   }
 
   const apiKey = process.env.ANTHROPIC_API_KEY;
@@ -19,9 +38,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "ANTHROPIC_API_KEY not configured" }, { status: 500 });
   }
 
-  const { url, keywords, currentTitle, currentDescription } = await req.json();
-  if (!url) return NextResponse.json({ error: "URL is required" }, { status: 400 });
-
+  // Fetch page content
   let pageContent = "";
   try {
     let target = url.trim();
@@ -78,8 +95,23 @@ export async function POST(req: NextRequest) {
 
     const result = JSON.parse(jsonMatch[0]);
 
+    if (isFreeUse) {
+      // Record the free trial use
+      await prisma.freeTrialUse.create({
+        data: { visitorId: visitorId! },
+      });
+      return NextResponse.json({
+        options: result.options,
+        freeUse: true,
+        pageInfo: {
+          fetchedTitle: pageContent.match(/Current title: (.*)/)?.[1] || "",
+          fetchedDescription: pageContent.match(/Current meta description: (.*)/)?.[1] || "",
+        },
+      });
+    }
+
     // Deduct credit AFTER successful generation
-    const newBalance = await deductCredits(session.user.id, 1, "use:meta-tags");
+    const newBalance = await deductCredits(session!.user!.id!, 1, "use:meta-tags");
 
     return NextResponse.json({
       options: result.options,

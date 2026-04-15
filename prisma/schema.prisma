@@ -77,3 +77,10 @@ model CreditTransaction {
   createdAt    DateTime @default(now())
   user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
+
+model FreeTrialUse {
+  id        String   @id @default(cuid())
+  visitorId String   @unique
+  tool      String   @default("meta-tags")
+  usedAt    DateTime @default(now())
+}
