@@ -136,16 +136,12 @@ export default function MetaTagsPage() {
       const data = await res.json();
 
       if (data.requiresAuth) {
-        setError(""); 
+        setError("");
         setFreeUsed(true);
-        return;
-      }
-      if (data.requiresCredits) {
+      } else if (data.requiresCredits) {
         setError("No credits remaining. Buy credits to continue.");
-        return;
-      }
-      if (data.error) { 
-        setError(data.error); 
+      } else if (data.error) {
+        setError(data.error);
       } else {
         setOptions(data.options || []);
         if (data.pageInfo) setFetchedInfo(data.pageInfo);
@@ -153,7 +149,6 @@ export default function MetaTagsPage() {
         // If this was a free use, mark it
         if (data.freeUse) {
           setFreeUsed(true);
-          // Set cookie (365 days)
           document.cookie = "meta_tags_free_used=1; path=/; max-age=31536000; SameSite=Lax";
         }
       }
