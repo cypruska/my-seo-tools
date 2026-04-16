@@ -170,8 +170,9 @@ export default function MetaTagsPage() {
 
   // Determine gate state
   const isLoggedIn = !!session;
+  const hasResults = options.length > 0; // Don't gate if results are showing
   const canUseFreely = !freeUsed; // Has free trial available
-  const needsAuth = freeUsed && !isLoggedIn;
+  const needsAuth = freeUsed && !isLoggedIn && !hasResults;
   const needsCredits = freeUsed && isLoggedIn; // Will be checked server-side on submit
 
   if (status === "loading" || gateLoading) {
@@ -366,6 +367,34 @@ export default function MetaTagsPage() {
         <strong style={{ color: S.text }}>Notes:</strong> Google may rewrite your title and description. Titles: 50-60 chars. Descriptions: 120-155 chars.
         Include your primary keyword early in the title. Add a CTA in the description. AI generates 3 options with different angles — pick the best one and refine it.
       </div>
+
+      {/* Upsell after free use */}
+      {freeUsed && !isLoggedIn && hasResults && (
+        <div style={{
+          marginTop: 20, padding: "16px 20px", borderRadius: 10,
+          background: "linear-gradient(135deg, rgba(59,130,246,0.08), rgba(139,92,246,0.08))",
+          border: "1px solid rgba(139,92,246,0.2)",
+          textAlign: "center",
+        }}>
+          <div style={{ fontSize: 14, fontWeight: 700, color: S.text, marginBottom: 6 }}>
+            Want more AI-generated meta tags?
+          </div>
+          <div style={{ fontSize: 12, color: S.dim, marginBottom: 12 }}>
+            Sign in and grab credits to keep optimizing your pages.
+          </div>
+          <div style={{ display: "flex", gap: 10, justifyContent: "center" }}>
+            <Link href="/login" style={{
+              padding: "10px 24px", background: S.accent, color: "#fff",
+              borderRadius: 8, fontSize: 13, fontWeight: 700, fontFamily: S.sans, textDecoration: "none",
+            }}>Sign In</Link>
+            <Link href="/pricing" style={{
+              padding: "10px 24px", background: "transparent", color: S.purple,
+              borderRadius: 8, fontSize: 13, fontWeight: 600, fontFamily: S.sans, textDecoration: "none",
+              border: `1px solid rgba(139,92,246,0.3)`,
+            }}>View Credits</Link>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
